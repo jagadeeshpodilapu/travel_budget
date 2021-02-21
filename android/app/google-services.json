@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "661017109629",
+    "project_id": "travel-budget-cc9b2",
+    "storage_bucket": "travel-budget-cc9b2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661017109629:android:133d7d1e23d179c9fe3d14",
+        "android_client_info": {
+          "package_name": "com.jagadeesh.travel_budget"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "661017109629-mbapio9preobkijgdrrnq402r5ifdlpj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiL9tSRgMWig9XPFwmnvbsXC1tF1jNhho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "661017109629-mbapio9preobkijgdrrnq402r5ifdlpj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
