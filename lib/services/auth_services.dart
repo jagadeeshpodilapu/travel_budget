@@ -9,6 +9,13 @@ class AuthService {
         (User user) => user?.uid,
       );
 
+//get user id
+  Future<String> getCurrentUserId() async {
+    var uid = await Future.value(_auth.currentUser.uid);
+
+    return uid;
+  }
+
   //email and password sign up
 
   Future<String> createUserEmailandPassword(

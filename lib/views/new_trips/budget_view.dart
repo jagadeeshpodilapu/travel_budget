@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_budget/models/trip_model.dart';
+import 'package:travel_budget/widgets/provider_widget.dart';
 
 class NewTripBudgetView extends StatelessWidget {
   final db = FirebaseFirestore.instance;
@@ -24,7 +25,12 @@ class NewTripBudgetView extends StatelessWidget {
             Text("end Date : ${trip.endDate}"),
             RaisedButton(
               onPressed: () async {
-                await db.collection("trips").add(trip.toJson());
+                final uid = await Provider.of(context).auth.getCurrentUserId();
+                await db
+                    .collection("userData")
+                    .doc(uid)
+                    .collection("trips")
+                    .add(trip.toJson());
 
                 Navigator.of(context).popUntil((route) => route.isFirst);
               },
