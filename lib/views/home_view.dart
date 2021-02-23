@@ -4,15 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class HomeView extends StatelessWidget {
-  /*final List<Trip> tripList = [
-    Trip("vskp", "travelType", DateTime.now(), DateTime.now(), 200.0),
-    Trip("sklm", "travelType", DateTime.now(), DateTime.now(), 300.0),
-    Trip("hyd", "travelType", DateTime.now(), DateTime.now(), 400.0),
-    Trip("bnglr", "travelType", DateTime.now(), DateTime.now(), 500.0),
-    Trip("pune", "travelType", DateTime.now(), DateTime.now(), 600.0),
-  ];
-*/
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -21,7 +12,7 @@ class HomeView extends StatelessWidget {
           builder: (context, snapshot) {
             print(" data is ${snapshot.data}");
             if (!snapshot.hasData) {
-              return const Text("Loading...");
+              return Center(child: const Text("Loading..."));
             }
             return ListView.builder(
                 itemCount: snapshot.data.docs.length,

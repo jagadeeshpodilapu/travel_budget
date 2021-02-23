@@ -2,9 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_budget/widgets/custom_dialog.dart';
 
-class FirstView extends StatelessWidget {
-  final primaryColor = const Color(0xFF75A2EA);
+final primaryColor = const Color(0xFF75A2EA);
 
+class FirstView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
