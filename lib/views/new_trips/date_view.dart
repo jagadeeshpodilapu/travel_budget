@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -105,8 +106,11 @@ class _NewTripDateViewState extends State<NewTripDateView> {
                         children: <Widget>[
                           Row(
                             children: <Widget>[
-                              Text(trip.title,
-                                  style: TextStyle(fontSize: 30.0)),
+                              Flexible(
+                                child: AutoSizeText(trip.title,
+                                    maxLines: 3,
+                                    style: TextStyle(fontSize: 22.0)),
+                              ),
                             ],
                           ),
                           Row(

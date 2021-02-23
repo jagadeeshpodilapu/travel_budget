@@ -36,6 +36,7 @@ dependencies:
   flutter_spinkit: ^4.1.2+1
   auth_buttons: ^0.0.6
   google_sign_in: ^4.5.9
+  dio: ^3.0.10
 
 
 dev_dependencies:
