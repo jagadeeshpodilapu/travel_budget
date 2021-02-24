@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:travel_budget/models/trip_model.dart';
-import 'package:travel_budget/widgets/provider_widget.dart';
+import 'package:travel_budget/views/new_trips/summary_view.dart';
 
 class NewTripBudgetView extends StatelessWidget {
   final db = FirebaseFirestore.instance;
@@ -11,6 +12,9 @@ class NewTripBudgetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController _budgetController = TextEditingController();
+    _budgetController.text =
+        (trip.budget == null) ? "" : trip.budget.toStringAsFixed(0);
     return Scaffold(
       appBar: AppBar(
         title: Text("Create Trip-Budget "),
@@ -19,22 +23,33 @@ class NewTripBudgetView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("finish"),
-            Text("Location : ${trip.title}"),
-            Text("start Date : ${trip.startDate}"),
-            Text("end Date : ${trip.endDate}"),
+            Text("Enter a Trip Budget"),
+            Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: TextField(
+                controller: _budgetController,
+                maxLines: 1,
+                decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.attach_money),
+                    helperText: "Daily estimated Budget "),
+                keyboardType: TextInputType.numberWithOptions(decimal: false),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                autofocus: true,
+              ),
+            ),
             RaisedButton(
               onPressed: () async {
-                final uid = await Provider.of(context).auth.getCurrentUserId();
-                await db
-                    .collection("userData")
-                    .doc(uid)
-                    .collection("trips")
-                    .add(trip.toJson());
-
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                trip.budget = (_budgetController.text == null)
+                    ? 0
+                    : double.parse(_budgetController.text);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NewTripSummaryView(trip: trip),
+                  ),
+                );
               },
-              child: Text("finish"),
+              child: Text("Continue"),
             )
           ],
         ),
