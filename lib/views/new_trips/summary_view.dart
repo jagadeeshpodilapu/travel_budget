@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:travel_budget/models/trip_model.dart';
 import 'package:travel_budget/widgets/provider_widget.dart';
 
@@ -11,6 +12,8 @@ class NewTripSummaryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tripTypes = trip.types();
+    var tripKeys = tripTypes.keys.toList();
     return Scaffold(
       appBar: AppBar(
         title: Text("Trip Summary"),
@@ -21,21 +24,38 @@ class NewTripSummaryView extends StatelessWidget {
           children: [
             Text("finish"),
             Text("Location : ${trip.title}"),
-            Text("start Date : ${trip.startDate}"),
+            Text(
+                "${DateFormat('dd/MM/yyyy').format(trip.startDate).toString()} - ${DateFormat('dd/MM/yyyy').format(trip.endDate).toString()}"),
             Text("end Date : ${trip.endDate}"),
-            RaisedButton(
-              onPressed: () async {
-                final uid = await Provider.of(context).auth.getCurrentUserId();
-                await db
-                    .collection("userData")
-                    .doc(uid)
-                    .collection("trips")
-                    .add(trip.toJson());
+            Expanded(
+                child: GridView.count(
+              crossAxisCount: 3,
+              scrollDirection: Axis.vertical,
+              primary: false,
+              children: List.generate(tripTypes.length, (index) {
+                return FlatButton(
+                  onPressed: () async {
+                    trip.travelType = tripKeys[index];
+                    final uid =
+                        await Provider.of(context).auth.getCurrentUserId();
+                    await db
+                        .collection("userData")
+                        .doc(uid)
+                        .collection("trips")
+                        .add(trip.toJson());
 
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-              child: Text("finish"),
-            )
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      tripTypes[tripKeys[index]],
+                      Text(tripKeys[index]),
+                    ],
+                  ),
+                );
+              }),
+            )),
           ],
         ),
       ),

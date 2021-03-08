@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:travel_budget/credentials.dart';
 import 'package:travel_budget/models/place.dart';
 import 'package:travel_budget/models/trip_model.dart';
+import 'package:uuid/uuid.dart';
 
 import 'date_view.dart';
 
@@ -22,15 +23,17 @@ class _NewTripLocationViewState extends State<NewTripLocationView> {
   String _heading;
   List<Place> _placesList;
   List<Place> _suggestionList = [
-    Place("New York", 320.00),
-    Place("Austin", 250.00),
-    Place("Boston", 290.00),
-    Place("Florence", 300.00),
-    Place("Washington D.C.", 190.00),
+    Place("New York", 320.00, ""),
+    Place("Austin", 250.00, ""),
+    Place("Boston", 290.00, ""),
+    Place("Florence", 300.00, ""),
+    Place("Washington D.C.", 190.00, ""),
   ];
   int _calls = 0;
   TextEditingController _searchController = TextEditingController();
   Timer _throttle;
+  var uuid = new Uuid();
+  String _sessionToken;
 
   @override
   void initState() {
@@ -43,10 +46,12 @@ class _NewTripLocationViewState extends State<NewTripLocationView> {
   }
 
   _onSearchChanged() {
-    if (_throttle?.isActive ?? false) _throttle.cancel();
-    _throttle = Timer(Duration(microseconds: 300), () {
-      getLocationResults(_searchController.text);
-    });
+    if (_sessionToken == null) {
+      setState(() {
+        _sessionToken = uuid.v4();
+      });
+    }
+    getLocationResults(_searchController.text);
   }
 
   void getLocationResults(String input) async {
@@ -64,13 +69,17 @@ class _NewTripLocationViewState extends State<NewTripLocationView> {
     Response response = await Dio().get(request);
     final predictions = response.data['predictions'];
 
+    print("my predection data is $predictions");
+
     List<Place> _displayResults = [];
 
     for (var i = 0; i < predictions.length; i++) {
       String name = predictions[i]['description'];
-      //TODO figure out the budget
+      String placeId = predictions[i]['place_id'];
+
+      //TODO figureOut the budget
       double averageBudget = 200.0;
-      _displayResults.add(Place(name, averageBudget));
+      _displayResults.add(Place(name, averageBudget, placeId));
     }
 
     setState(() {
@@ -78,6 +87,14 @@ class _NewTripLocationViewState extends State<NewTripLocationView> {
       _suggestionList = _displayResults;
       _calls++;
     });
+  }
+
+  Future<String> getLocationPhotoRef(placeId) async {
+    var _sessionToken;
+    String placeImageReq =
+        "https://maps.googleapis.com/maps/api/place/details/json?$placeId=photo&key=$PLACES_API_KEY&sessionToken=$_sessionToken";
+    Response placeDetails = await Dio().get(placeImageReq);
+    return placeDetails.data["result"]["photos"][0]["photo_reference"];
   }
 
   @override
@@ -168,19 +185,17 @@ class _NewTripLocationViewState extends State<NewTripLocationView> {
                       ),
                     ),
                   ),
-                  Column(
-                    children: <Widget>[
-                      Placeholder(
-                        fallbackHeight: 80,
-                        fallbackWidth: 80,
-                      ),
-                    ],
-                  )
                 ],
               ),
-              onTap: () {
+              onTap: () async {
+                String photoReference =
+                    await getLocationPhotoRef(_placesList[index].placeId);
+
                 widget.trip.title = _placesList[index].name;
-                // TODO maybe pass the trip average budget through here too...
+                widget.trip.photoreference = photoReference;
+                setState(() {
+                  _sessionToken = null;
+                });
                 // that would need to be added to the Trip object
                 Navigator.push(
                   context,
@@ -210,9 +225,9 @@ class DividerWithText extends StatelessWidget {
       children: [
         Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Divider(),
-            )),
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Divider(),
+        )),
         Text(dividerText),
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
@@ -222,17 +237,3 @@ class DividerWithText extends StatelessWidget {
     );
   }
 }
-
-/*
-RaisedButton(
-onPressed: () {
-trip.title = _titleController.text;
-Navigator.push(
-context,
-MaterialPageRoute(
-builder: (context) => NewTripDateView(trip: trip),
-),
-);
-},
-child: Text("Continue"),
-)*/

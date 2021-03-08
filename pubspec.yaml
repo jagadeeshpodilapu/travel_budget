@@ -37,6 +37,7 @@ dependencies:
   auth_buttons: ^0.0.6
   google_sign_in: ^4.5.9
   dio: ^3.0.10
+  uuid: 2.0.1
 
 
 dev_dependencies:

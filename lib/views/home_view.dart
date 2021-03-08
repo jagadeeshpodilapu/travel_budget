@@ -2,83 +2,92 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:travel_budget/models/trip_model.dart';
+import 'package:travel_budget/widgets/provider_widget.dart';
+
+final auth = FirebaseAuth.instance;
 
 class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
       child: StreamBuilder(
-          stream: getUserTripsStreamSnapshots(context),
-          builder: (context, snapshot) {
-            print(" data is ${snapshot.data}");
-            if (!snapshot.hasData) {
-              return Center(child: const Text("Loading..."));
-            }
-            return ListView.builder(
-                itemCount: snapshot.data.docs.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    child: buildTripCard(context, snapshot.data.docs[index]),
-                  );
-                });
-          }),
+        stream: getUsersTripsStreamSnapshots(context),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          print("snapshot data is $snapshot");
+
+          if (!snapshot.hasData)
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+
+          return new ListView.builder(
+              itemCount: snapshot.data.docs.length,
+              itemBuilder: (BuildContext context, int index) =>
+                  buildTripCard(context, snapshot.data.docs[index]));
+        },
+      ),
     );
   }
 
-  Stream<QuerySnapshot> getUserTripsStreamSnapshots(
+  Stream<QuerySnapshot> getUsersTripsStreamSnapshots(
       BuildContext context) async* {
-    final uid = FirebaseAuth.instance.currentUser.uid;
-    print("uid is $uid");
+    final uid = await Provider.of(context).auth.getCurrentUserId();
+
+    print("user id is $uid");
     yield* FirebaseFirestore.instance
-        .collection("userData")
-        .doc("$uid")
-        .collection("trips")
+        .collection('userData')
+        .doc(uid)
+        .collection('trips')
         .snapshots();
   }
 
-  Card buildTripCard(BuildContext context, DocumentSnapshot trip) {
-    print("my trip data $trip");
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 3.0),
-              child: Row(
-                children: [
+  Widget buildTripCard(BuildContext context, snapshot) {
+    print("${snapshot}");
+    final trip = Trip.fromSnapshot(snapshot.data());
+    final tripType = trip.types();
+
+    return new Container(
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                child: Row(children: <Widget>[
                   Text(
-                    trip['title'],
-                    style: TextStyle(fontSize: 22),
+                    trip.title,
+                    style: new TextStyle(fontSize: 30.0),
                   ),
                   Spacer(),
-                ],
+                ]),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 2.0, bottom: 4.0),
-              child: Row(
-                children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, bottom: 80.0),
+                child: Row(children: <Widget>[
                   Text(
-                      "${DateFormat('dd/mm/yyyy').format(trip['startDate'].toDate()).toString()} -${DateFormat('dd/mm/yyyy').format(trip['endDate'].toDate()).toString()} "),
+                      "${DateFormat('dd/MM/yyyy').format(trip.startDate).toString()} - ${DateFormat('dd/MM/yyyy').format(trip.endDate).toString()}"),
                   Spacer(),
-                ],
+                ]),
               ),
-            ),
-            SizedBox(
-              height: 50,
-            ),
-            Row(
-              children: [
-                Text(
-                  " \$${(trip['budget'] == null) ? "0.00" : trip['budget'].toStringAsFixed(2)}",
-                  style: TextStyle(fontSize: 30),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                child: Row(
+                  children: <Widget>[
+                    Text(
+                      "\$${(trip.budget == null) ? "n/a" : trip.budget.toStringAsFixed(2)}",
+                      style: new TextStyle(fontSize: 35.0),
+                    ),
+                    Spacer(),
+                    (tripType.containsKey(trip.travelType))
+                        ? tripType[trip.travelType]
+                        : tripType["other"],
+                  ],
                 ),
-                Spacer(),
-                Icon(Icons.directions_car),
-              ],
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -18,7 +18,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final newTrip = Trip(null, null, null, null, null);
+    final newTrip = Trip(null, null, null, null, null, null);
     return Scaffold(
       appBar: AppBar(
         title: Text("Travel budget"),

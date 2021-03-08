@@ -2,6 +2,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:travel_budget/credentials.dart';
 import 'package:travel_budget/models/trip_model.dart';
 
 import 'budget_view.dart';
@@ -37,6 +38,18 @@ class _NewTripDateViewState extends State<NewTripDateView> {
     }
   }
 
+  Image getImage(photoReference) {
+    final baseUrl = "https://maps.googleapis.com/maps/api/place/photo";
+    final maxWidth = "400";
+    final maxHeight = "200";
+    final url =
+        "$baseUrl?maxwidth=$maxWidth&photoreference=$photoReference&key=$PLACES_API_KEY";
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,40 +57,154 @@ class _NewTripDateViewState extends State<NewTripDateView> {
         title: Text("Create Trip-Date"),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            buildSelectedDetails(context, widget.trip),
-            Spacer(),
-            Text("Location : ${widget.trip.title}"),
-            RaisedButton(
-              onPressed: () async {
-                await displayDateRangePicker(context);
-              },
-              child: Text("select Dates"),
+        child: CustomScrollView(
+          /* child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              getImage(widget.trip.photoreference),
+              buildSelectedDetails(context, widget.trip),
+              Spacer(),
+              Text("Location : ${widget.trip.title}"),
+              RaisedButton(
+                onPressed: () async {
+                  await displayDateRangePicker(context);
+                },
+                child: Text("select Dates"),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                      "startDate :${DateFormat('MM/dd/yyyy').format(_startDate).toString()}"),
+                  Text(
+                      "end date :${DateFormat('MM/dd/yyyy').format(_endDate).toString()}"),
+                ],
+              ),
+              RaisedButton(
+                onPressed: () {
+                  widget.trip.startDate = _startDate;
+                  widget.trip.endDate = _endDate;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewTripBudgetView(trip: widget.trip),
+                    ),
+                  );
+                },
+                child: Text("Continue"),
+              ),
+              Spacer()
+            ],
+          ),*/
+          slivers: [
+            SliverAppBar(
+              title: Text(""),
+              backgroundColor: Colors.green,
+              expandedHeight: 300,
+              flexibleSpace: FlexibleSpaceBar(
+                background: getImage(widget.trip.photoreference),
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            SliverFixedExtentList(
+              delegate: SliverChildListDelegate([
+                buildSelectedDetails(context, widget.trip),
+                buildButtons(),
+              ]),
+              itemExtent: 200.00,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildButtons() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.60,
+          child: RaisedButton(
+            child: Text("Change Date Range"),
+            color: Colors.deepPurpleAccent,
+            textColor: Colors.white,
+            onPressed: () async {
+              await displayDateRangePicker(context);
+            },
+          ),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.60,
+          child: RaisedButton(
+            child: Text('Continue'),
+            color: Colors.amberAccent,
+            onPressed: () {
+              widget.trip.startDate = _startDate;
+              widget.trip.endDate = _endDate;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NewTripBudgetView(
+                    trip: widget.trip,
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildingSelectedDates() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 15.0),
+      child: Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Text("Start Date"),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "${DateFormat('MM-dd').format(_startDate).toString()}",
+                    style: TextStyle(fontSize: 35, color: Colors.deepPurple),
+                  ),
+                ),
                 Text(
-                    "startDate :${DateFormat('MM/dd/yyyy').format(_startDate).toString()}"),
-                Text(
-                    "end date :${DateFormat('MM/dd/yyyy').format(_endDate).toString()}"),
+                  "${DateFormat('yyyy').format(_startDate).toString()}",
+                  style: TextStyle(color: Colors.deepPurple),
+                ),
               ],
             ),
-            RaisedButton(
-              onPressed: () {
-                widget.trip.startDate = _startDate;
-                widget.trip.endDate = _endDate;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NewTripBudgetView(trip: widget.trip),
+            Container(
+                child: Icon(
+              Icons.arrow_forward,
+              color: Colors.deepOrange,
+              size: 45,
+            )),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("End Date"),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "${DateFormat('MM-dd').format(_endDate).toString()}",
+                    style: TextStyle(fontSize: 35, color: Colors.deepPurple),
                   ),
-                );
-              },
-              child: Text("Continue"),
-            )
+                ),
+                Text(
+                  "${DateFormat('yyyy').format(_endDate).toString()}",
+                  style: TextStyle(color: Colors.deepPurple),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -113,7 +240,7 @@ class _NewTripDateViewState extends State<NewTripDateView> {
                               ),
                             ],
                           ),
-                          Row(
+                          /*Row(
                             children: <Widget>[
                               Text("Average Budget -- Not set up yet®"),
                             ],
@@ -132,19 +259,12 @@ class _NewTripDateViewState extends State<NewTripDateView> {
                             children: <Widget>[
                               Text("Trip Type"),
                             ],
-                          ),
+                          ),*/
+                          buildingSelectedDates(),
                         ],
                       ),
                     ),
                   ),
-                  Column(
-                    children: <Widget>[
-                      Placeholder(
-                        fallbackHeight: 100,
-                        fallbackWidth: 100,
-                      ),
-                    ],
-                  )
                 ],
               ),
             ),
