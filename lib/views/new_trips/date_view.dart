@@ -2,7 +2,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRangePicker;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:travel_budget/credentials.dart';
 import 'package:travel_budget/models/trip_model.dart';
 
 import 'budget_view.dart';
@@ -36,18 +35,6 @@ class _NewTripDateViewState extends State<NewTripDateView> {
         _endDate = picked[1];
       });
     }
-  }
-
-  Image getImage(photoReference) {
-    final baseUrl = "https://maps.googleapis.com/maps/api/place/photo";
-    final maxWidth = "400";
-    final maxHeight = "200";
-    final url =
-        "$baseUrl?maxwidth=$maxWidth&photoreference=$photoReference&key=$PLACES_API_KEY";
-    return Image.network(
-      url,
-      fit: BoxFit.cover,
-    );
   }
 
   @override
@@ -102,7 +89,7 @@ class _NewTripDateViewState extends State<NewTripDateView> {
               backgroundColor: Colors.green,
               expandedHeight: 300,
               flexibleSpace: FlexibleSpaceBar(
-                background: getImage(widget.trip.photoreference),
+                background: widget.trip.getLocationImage(),
               ),
             ),
             SliverFixedExtentList(

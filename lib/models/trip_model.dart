@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:travel_budget/credentials.dart';
 
 class Trip {
   String title;
@@ -7,12 +8,15 @@ class Trip {
   double budget;
   Map budgetTypes;
   String travelType;
-  String photoreference;
+  String photoReference;
+
+  String notes;
+  String documentId;
 
   Trip(this.title, this.startDate, this.endDate, this.budget, this.budgetTypes,
       this.travelType);
 
-  //formatting for upload firebase
+  //formatting for upload firebase when creating the trip
   Map<String, dynamic> toJson() => {
         "title": title,
         "startDate": startDate,
@@ -20,7 +24,7 @@ class Trip {
         "budget": budget,
         "budgetType": budgetTypes,
         "travelType": travelType,
-        "photoReference": photoreference,
+        "photoReference": photoReference,
       };
 
   //creating a Trip object from a firebase snapshot
@@ -30,7 +34,11 @@ class Trip {
         endDate = snapshot["endDate"].toDate(),
         budget = snapshot["budget"],
         budgetTypes = snapshot["budgetTypes"],
-        travelType = snapshot["travelType"];
+        travelType = snapshot["travelType"],
+        photoReference = snapshot["photoReference"],
+        notes = snapshot['notes'];
+
+  // documentId = snapshot.id;
 
   Map<String, Icon> types() => {
         "car": Icon(
@@ -58,4 +66,17 @@ class Trip {
           size: 50,
         )
       };
+
+  //Return the google places images
+  Image getLocationImage() {
+    final baseUrl = "https://maps.googleapis.com/maps/api/place/photo";
+    final maxWidth = "1000";
+
+    final url =
+        "$baseUrl?maxwidth=$maxWidth&photoreference=$photoReference&key=$PLACES_API_KEY";
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+    );
+  }
 }

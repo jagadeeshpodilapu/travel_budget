@@ -192,7 +192,7 @@ class _NewTripLocationViewState extends State<NewTripLocationView> {
                     await getLocationPhotoRef(_placesList[index].placeId);
 
                 widget.trip.title = _placesList[index].name;
-                widget.trip.photoreference = photoReference;
+                widget.trip.photoReference = photoReference;
                 setState(() {
                   _sessionToken = null;
                 });
